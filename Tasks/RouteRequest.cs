@@ -108,7 +108,7 @@ namespace WSAPIR.Main
         /// <param name="data">The data.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>Throws NotImplementedException.</returns>
-        public Task RunTask(WrappedWebSocket wws, string data, CancellationToken cancellationToken)
+        public Task RunTask(WrappedWebSocket wws, string? data, CancellationToken cancellationToken)
         {
             // This is a system task, so no need to implement call for it
             throw new NotImplementedException();
