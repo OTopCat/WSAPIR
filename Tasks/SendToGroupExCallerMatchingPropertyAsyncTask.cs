@@ -60,7 +60,7 @@ namespace WSAPIR.Main
         /// <summary>
         /// Placeholder for Interface to dynamically add tasks.
         /// </summary>
-        public Task RunTask(WrappedWebSocket wws, string data, CancellationToken cancellationToken)
+        public Task RunTask(WrappedWebSocket wws, string? data, CancellationToken cancellationToken)
         {
             // Placeholder for Interface to dynamically add tasks
             throw new NotImplementedException();
