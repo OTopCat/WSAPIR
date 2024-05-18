@@ -48,16 +48,16 @@ namespace WSAPIR.Controllers
 
             if (!_apiUrlsSettings.Urls.Values.Contains(request.Sender))
             {
-                _logger.LogWarning("Sender {Sender} is not authorized.", request.Sender);
+                _logger.LogWarning("Sender {Sender} is not authorized.", request.Sender.Replace(Environment.NewLine, ""));
                 return Unauthorized("Sender not authorized.");
             }
 
-            _logger.LogInformation("Processing response from {Sender}.", request.Sender);
+            _logger.LogInformation("Processing response from {Sender}.", request.Sender.Replace(Environment.NewLine, ""));
 
             var task = _webSocketTaskFactory.GetTask(request.TaskName);
             if (task == null)
             {
-                _logger.LogError("Task {TaskName} not found.", request.TaskName);
+                _logger.LogError("Task {TaskName} not found.", request.TaskName.Replace(Environment.NewLine, ""));
                 return BadRequest("Task not found.");
             }
 
