@@ -68,7 +68,7 @@ jobs:
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         REPO_PATH: ${{ github.workspace }}
-        SRC_DIR: WSAPIR
+        SRC_DIR: src
         TEST_DIR: WSAPIR.Tests
       run: |
         python generate_tests.py
