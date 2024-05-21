@@ -40,19 +40,19 @@ def get_class_name(file_path):
 
 if __name__ == "__main__":
     repo_path = os.getenv("REPO_PATH")
-    src_dir = os.getenv("SRC_DIR")
+    src_dirs = ["WSAPIR/Models", "WSAPIR/Tasks", "WSAPIR/Main", "WSAPIR/Interfaces"]
     test_dir = os.getenv("TEST_DIR")
 
     repo = Repo(repo_path)
 
-    # Get all .cs files in the source directory that exist in the latest commit
-    cs_files = [file for file in glob.glob(os.path.join(repo_path, src_dir, '**', '*.cs'), recursive=True) if repo.git.ls_files(file)]
+    for src_dir in src_dirs:
+        cs_files = [file for file in glob.glob(os.path.join(repo_path, src_dir, '**', '*.cs'), recursive=True) if repo.git.ls_files(file)]
 
-    for cs_file in cs_files:
-        class_name = get_class_name(cs_file)
-        if class_name:
-            code = get_code_from_repo(repo, cs_file)
-            if code:
-                tests = generate_unit_tests(code, class_name)
-                test_file_path = os.path.join(test_dir, f"Test{class_name}.cs")
-                save_tests_to_repo(repo_path, test_file_path, tests)
+        for cs_file in cs_files:
+            class_name = get_class_name(cs_file)
+            if class_name:
+                code = get_code_from_repo(repo, cs_file)
+                if code:
+                    tests = generate_unit_tests(code, class_name)
+                    test_file_path = os.path.join(test_dir, f"Test{class_name}.cs")
+                    save_tests_to_repo(repo_path, test_file_path, tests)
