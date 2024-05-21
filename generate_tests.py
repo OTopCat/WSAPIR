@@ -3,13 +3,15 @@ import os
 from git import Repo
 import glob
 
-# Load your API key from an environment variable or secret management service
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-def get_code_from_repo(repo_path, file_path):
-    repo = Repo(repo_path)
-    file_content = repo.git.show(f'HEAD:{file_path}')
-    return file_content
+def get_code_from_repo(repo, file_path):
+    try:
+        file_content = repo.git.show(f'HEAD:{file_path}')
+        return file_content
+    except Exception as e:
+        print(f"Error getting file from repo: {e}")
+        return None
 
 def generate_unit_tests(code, class_name):
     response = openai.Completion.create(
@@ -41,13 +43,16 @@ if __name__ == "__main__":
     src_dir = os.getenv("SRC_DIR")
     test_dir = os.getenv("TEST_DIR")
 
-    # Get all .cs files in the source directory
-    cs_files = glob.glob(os.path.join(repo_path, src_dir, '**', '*.cs'), recursive=True)
+    repo = Repo(repo_path)
+
+    # Get all .cs files in the source directory that exist in the latest commit
+    cs_files = [file for file in glob.glob(os.path.join(repo_path, src_dir, '**', '*.cs'), recursive=True) if repo.git.ls_files(file)]
 
     for cs_file in cs_files:
         class_name = get_class_name(cs_file)
         if class_name:
-            code = get_code_from_repo(repo_path, cs_file)
-            tests = generate_unit_tests(code, class_name)
-            test_file_path = os.path.join(test_dir, f"Test{class_name}.cs")
-            save_tests_to_repo(repo_path, test_file_path, tests)
+            code = get_code_from_repo(repo, cs_file)
+            if code:
+                tests = generate_unit_tests(code, class_name)
+                test_file_path = os.path.join(test_dir, f"Test{class_name}.cs")
+                save_tests_to_repo(repo_path, test_file_path, tests)
