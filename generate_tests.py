@@ -7,8 +7,12 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def get_code_from_repo(repo, file_path):
     try:
-        file_content = repo.git.show(f'HEAD:{file_path}')
-        return file_content
+        if file_path in repo.git.ls_files():
+            file_content = repo.git.show(f'HEAD:{file_path}')
+            return file_content
+        else:
+            print(f"File {file_path} does not exist in HEAD.")
+            return None
     except Exception as e:
         print(f"Error getting file from repo: {e}")
         return None
@@ -46,7 +50,7 @@ if __name__ == "__main__":
     repo = Repo(repo_path)
 
     for src_dir in src_dirs:
-        cs_files = [file for file in glob.glob(os.path.join(repo_path, src_dir, '**', '*.cs'), recursive=True) if repo.git.ls_files(file)]
+        cs_files = [file for file in glob.glob(os.path.join(repo_path, src_dir, '**', '*.cs'), recursive=True) if file in repo.git.ls_files()]
 
         for cs_file in cs_files:
             class_name = get_class_name(cs_file)

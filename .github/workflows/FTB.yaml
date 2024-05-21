@@ -100,11 +100,11 @@ jobs:
       run: dotnet build --configuration Release --no-restore
 
     - name: Run tests
-      run: dotnet test --configuration Release --no-build --verbosity normal
+      run: dotnet test --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=test_results.trx"
 
     - name: Upload Test Results
       if: always()
       uses: actions/upload-artifact@v3
       with:
         name: test-results
-        path: '**/TestResults/*.trx'
+        path: '**/TestResults/test_results.trx'
