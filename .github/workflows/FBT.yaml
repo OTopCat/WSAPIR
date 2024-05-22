@@ -1,9 +1,12 @@
 name: Format, Build, Test
 
-on: [push, pull_request]
-  branches:
-    - dev
-
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - dev
 env:
   DOTNET_VERSION: '8.0.x' #7 EOL so no matrix, just an 8+
 
