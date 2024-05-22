@@ -51,16 +51,21 @@ namespace WSAPIR.Main
                             {
                                 if (await IsValidRequestAsync(request, cancellationToken))
                                 {
-                                    var task = _webSocketTaskFactory.GetTask(request.TaskName);
-                                    if (task != null)
-                                    {
-                                        await task.RunTask(wws, request, cancellationToken);
-                                    }
-                                    else
-                                    {
-                                        _logger.LogError("Invalid Task in request: {TaskName}", request.TaskName);
-                                        await HandleInvalidRequestAsync(wws, "Invalid Task in request", cancellationToken);
-                                    }
+                                    // This implementation allows to run tasks on WSAPIR, but currently disabled - Needs fix
+                                    //var task = _webSocketTaskFactory.GetTask(request.TaskName);
+                                    //if (task != null)
+                                    //{
+                                    //    await task.RunTask(wws, request, cancellationToken);
+                                    //}
+                                    //else
+                                    //{
+                                    //    _logger.LogError("Invalid Task in request: {TaskName}", request.TaskName);
+                                    //    await HandleInvalidRequestAsync(wws, "Invalid Task in request", cancellationToken);
+                                    //}
+
+                                    // For now just farward
+                                    var task = _webSocketTaskFactory.GetTask("RouteRequestTask");
+                                    await task.RunTask(wws, request, cancellationToken);
                                 }
                                 else
                                 {
@@ -93,7 +98,7 @@ namespace WSAPIR.Main
         /// <inheritdoc />
         public async Task<bool> IsValidRequestAsync(WebSocketRequest request, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrEmpty(request.JWT) || string.IsNullOrEmpty(request.TaskName))
+            if (string.IsNullOrEmpty(request.JWT))
             {
                 return false;
             }
@@ -169,7 +174,7 @@ namespace WSAPIR.Main
         public Task CloseWebSocketAsync(WrappedWebSocket wws, string statusDescription, CancellationToken cancellationToken)
         {
             return wws.WebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, statusDescription, cancellationToken)
-                .ContinueWith(t => _connectionManager.RemoveFromGroup(wws));
+                .ContinueWith(t => _connectionManager.RemoveFromGroup(wws), cancellationToken);
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System.Net.Http.Headers;
 using System.Text;
-using Newtonsoft.Json;
 using WSAPIR.Interfaces;
 using WSAPIR.Models;
 using Microsoft.Extensions.Options;
@@ -11,19 +10,19 @@ namespace WSAPIR.Tasks
     /// <summary>
     /// Task to route an API request from WebSocket data.
     /// </summary>
-    public class RouteRequest : IWebSocketTask
+    public class RouteRequestTask : IWebSocketTask
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConnectionManager _connectionManager;
         private readonly IWebSocketTaskFactory _webSocketTaskFactory;
-        private readonly ILogger<RouteRequest> _logger;
+        private readonly ILogger<RouteRequestTask> _logger;
         private readonly ApiUrlsSettings _apiUrlsSettings;
 
-        public RouteRequest(
+        public RouteRequestTask(
             IHttpClientFactory httpClientFactory,
             IConnectionManager connectionManager,
             IWebSocketTaskFactory webSocketTaskFactory,
-            ILogger<RouteRequest> logger,
+            ILogger<RouteRequestTask> logger,
             IOptions<ApiUrlsSettings> apiUrlsSettings)
         {
             _httpClientFactory = httpClientFactory;
@@ -33,7 +32,7 @@ namespace WSAPIR.Tasks
             _apiUrlsSettings = apiUrlsSettings.Value;
         }
 
-        public string TaskName => nameof(RouteRequest);
+        public string TaskName => nameof(RouteRequestTask);
 
         /// <summary>
         /// Routes an API request from the provided WebSocket request data.
@@ -46,20 +45,19 @@ namespace WSAPIR.Tasks
         {
             try
             {
-                var apiRequest = JsonConvert.DeserializeObject<ApiRequest>(request.Data);
-                if (apiRequest == null)
+                if (request == null)
                 {
                     throw new ArgumentException("Invalid API request data.");
                 }
 
                 var client = _httpClientFactory.CreateClient();
-                var apiUrl = new Uri(new Uri(_apiUrlsSettings.Urls[apiRequest.ApiName]), apiRequest.Endpoint);
+                var apiUrl = new Uri(new Uri(_apiUrlsSettings.Urls[request.ApiName]), request.Endpoint);
 
-                var requestMessage = new HttpRequestMessage(new HttpMethod(apiRequest.Method), apiUrl);
+                var requestMessage = new HttpRequestMessage(new HttpMethod(request.Method), apiUrl);
 
-                if (!string.IsNullOrEmpty(apiRequest.Data))
+                if (!string.IsNullOrEmpty(request.Data))
                 {
-                    requestMessage.Content = new StringContent(apiRequest.Data, Encoding.UTF8, "application/json");
+                    requestMessage.Content = new StringContent(request.Data, Encoding.UTF8, "application/json");
                 }
 
                 // Add the JWT token to the authorization header
@@ -71,28 +69,29 @@ namespace WSAPIR.Tasks
                 var response = await client.SendAsync(requestMessage, cancellationToken);
                 var responseData = await response.Content.ReadAsStringAsync(cancellationToken);
 
-                _logger.LogInformation("Request routed to {ApiName} with endpoint {Endpoint}", apiRequest.ApiName, apiRequest.Endpoint);
+                _logger.LogInformation("Request routed to {ApiName} with endpoint {Endpoint}", request.ApiName, request.Endpoint);
 
-                if (!string.IsNullOrEmpty(apiRequest.CallbackTask))
+                var responseMessage = new WebSocketResponse
                 {
-                    var callbackTask = _webSocketTaskFactory.GetTask(apiRequest.CallbackTask);
+                    SourceAPI = request.ApiName,
+                    TaskName = TaskName,
+                    Data = responseData
+                };
+
+                if (!string.IsNullOrEmpty(request.CallbackTask))
+                {
+                    var callbackTask = _webSocketTaskFactory.GetTask(request.CallbackTask);
                     if (callbackTask != null)
                     {
-                        await callbackTask.RunTask(wws, responseData, cancellationToken);
+                        await callbackTask.RunTask(wws, responseMessage, cancellationToken);
                     }
                     else
                     {
-                        _logger.LogError("Callback task {CallbackTask} not found.", apiRequest.CallbackTask);
+                        _logger.LogError("Callback task {CallbackTask} not found.", request.CallbackTask);
                     }
                 }
                 else
                 {
-                    var responseMessage = new WebSocketResponse
-                    {
-                        TaskName = TaskName,
-                        Data = responseData
-                    };
-
                     await wws.WebSocket.SendAsync(responseMessage.ToBuffer(), WebSocketMessageType.Text, true, cancellationToken);
                 }
             }
@@ -117,11 +116,19 @@ namespace WSAPIR.Tasks
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Placeholder as need this construcrtor do dynamicaly add tasks
+        /// </summary>
+        public Task RunTask(WrappedWebSocket wws, WebSocketResponse response, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
         private async Task HandleErrorAsync(WrappedWebSocket wws, string errorMessage, CancellationToken cancellationToken)
         {
             var response = new WebSocketResponse
             {
-                TaskName = nameof(RouteRequest),
+                TaskName = nameof(RouteRequestTask),
                 Data = errorMessage
             };
 

@@ -32,7 +32,13 @@ namespace WSAPIR.Tests.Tasks
                 UserId = 123
             };
 
-            var request = new WebSocketRequest { Data = "Test Data" };
+            var request = new WebSocketRequest
+            {
+                ApiName = "TestApi",
+                Endpoint = "/test",
+                Method = "GET",
+                Data = "Test Data"
+            };
 
             var exception = await Assert.ThrowsAsync<WebSocketException>(() => _task.RunTask(wws, request, CancellationToken.None));
 
@@ -63,7 +69,13 @@ namespace WSAPIR.Tests.Tasks
                 UserId = 123
             };
 
-            var request = new WebSocketRequest { Data = "Test Data" };
+            var request = new WebSocketRequest
+            {
+                ApiName = "TestApi",
+                Endpoint = "/test",
+                Method = "GET",
+                Data = "Test Data"
+            };
 
             await _task.RunTask(wws, request, CancellationToken.None);
 

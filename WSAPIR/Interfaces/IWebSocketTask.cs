@@ -22,6 +22,15 @@ namespace WSAPIR.Interfaces
         Task RunTask(WrappedWebSocket wws, WebSocketRequest request, CancellationToken cancellationToken);
 
         /// <summary>
+        /// Executes the WebSocket task with response
+        /// </summary>
+        /// <param name="wws">The wrapped WebSocket.</param>
+        /// <param name="request">Required WebSocketRequest object</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns></returns>
+        Task RunTask(WrappedWebSocket wws, WebSocketResponse response, CancellationToken cancellationToken);
+
+        /// <summary>
         /// Executes the WebSocket task.
         /// </summary>
         /// <param name="wws">The wrapped WebSocket.</param>

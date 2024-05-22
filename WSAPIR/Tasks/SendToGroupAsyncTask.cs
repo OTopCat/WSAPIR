@@ -33,8 +33,19 @@ namespace WSAPIR.Tasks
         {
             try
             {
+                if (string.IsNullOrEmpty(request.Data))
+                {
+                    _logger.LogError("SendToGroupAsyncTask: Request data is null or empty.");
+                    return;
+                }
+
                 int groupId = _connectionManager.GetGroupId(wws);
                 var response = JsonConvert.DeserializeObject<WebSocketResponse>(request.Data);
+                if (response == null)
+                {
+                    _logger.LogError("SendToGroupAsyncTask: Deserialized response is null.");
+                    return;
+                }
 
                 var connections = _connectionManager.GetConnections(groupId);
                 var sendMessageTask = _webSocketTaskFactory.GetTask(nameof(SendMessageAsyncTask));
@@ -56,13 +67,51 @@ namespace WSAPIR.Tasks
             }
         }
 
-
         /// <summary>
         /// Placeholder for Interface to dynamically add tasks.
         /// </summary>
         public Task RunTask(WrappedWebSocket wws, string? data, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Sends a response to all connections in a specified group.
+        /// </summary>
+        /// <param name="wws">The wrapped WebSocket connection.</param>
+        /// <param name="response">The WebSocket response containing the response data.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        public async Task RunTask(WrappedWebSocket wws, WebSocketResponse response, CancellationToken cancellationToken)
+        {
+            try
+            {
+                if (response == null || string.IsNullOrEmpty(response.Data))
+                {
+                    _logger.LogError("SendToGroupAsyncTask: Response or response data is null or empty.");
+                    return;
+                }
+
+                int groupId = _connectionManager.GetGroupId(wws);
+
+                var connections = _connectionManager.GetConnections(groupId);
+                var sendMessageTask = _webSocketTaskFactory.GetTask(nameof(SendMessageAsyncTask));
+
+                var tasks = connections.Select(connection => sendMessageTask.RunTask(connection, response, cancellationToken)).ToList();
+                await Task.WhenAll(tasks);
+
+                _logger.LogInformation("SendToGroupAsyncTask: Response sent to connections in group {GroupId}.", groupId);
+            }
+            catch (JsonReaderException ex)
+            {
+                _logger.LogError(ex, "Error sending response to group");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unexpected error occurred");
+                throw;
+            }
         }
     }
 }

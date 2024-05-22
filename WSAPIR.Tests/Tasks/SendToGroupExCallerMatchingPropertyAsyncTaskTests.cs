@@ -39,7 +39,13 @@ namespace WSAPIR.Tests.Tasks
             var groupId = 1;
             var propertyName = "Role";
             var response = new WebSocketResponse { TaskName = "TestTask", Data = "Response data" };
-            var request = new WebSocketRequest { Data = JsonConvert.SerializeObject((propertyName, response)) };
+            var request = new WebSocketRequest
+            {
+                ApiName = "TestApi",
+                Endpoint = "/test",
+                Method = "POST",
+                Data = JsonConvert.SerializeObject((propertyName, response))
+            };
 
             var callerWebSocket = new Mock<WebSocket>().Object;
             var matchingWebSocket = new Mock<WebSocket>().Object;
@@ -69,7 +75,13 @@ namespace WSAPIR.Tests.Tasks
             var groupId = 1;
             var propertyName = "Role";
             var response = new WebSocketResponse { TaskName = "TestTask", Data = "Response data" };
-            var request = new WebSocketRequest { Data = JsonConvert.SerializeObject((propertyName, response)) };
+            var request = new WebSocketRequest
+            {
+                ApiName = "TestApi",
+                Endpoint = "/test",
+                Method = "POST",
+                Data = JsonConvert.SerializeObject((propertyName, response))
+            };
 
             var callerWebSocket = new Mock<WebSocket>().Object;
             var nonMatchingWebSocket = new Mock<WebSocket>().Object;

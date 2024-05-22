@@ -24,7 +24,13 @@ namespace WSAPIR.Tests.Tasks
             var mockWebSocket = new Mock<WebSocket>();
             var wws = new WrappedWebSocket { WebSocket = mockWebSocket.Object, UserId = 123 };
             var response = new WebSocketResponse { TaskName = "TestTask", Data = "Response data" };
-            var request = new WebSocketRequest { Data = JsonConvert.SerializeObject(response) };
+            var request = new WebSocketRequest
+            {
+                ApiName = "TestApi",
+                Endpoint = "/test",
+                Method = "POST",
+                Data = JsonConvert.SerializeObject(response)
+            };
 
             await _task.RunTask(wws, request, CancellationToken.None);
 
@@ -49,7 +55,13 @@ namespace WSAPIR.Tests.Tasks
 
             var wws = new WrappedWebSocket { WebSocket = mockWebSocket.Object, UserId = 123 };
             var response = new WebSocketResponse { TaskName = "TestTask", Data = "Response data" };
-            var request = new WebSocketRequest { Data = JsonConvert.SerializeObject(response) };
+            var request = new WebSocketRequest
+            {
+                ApiName = "TestApi",
+                Endpoint = "/test",
+                Method = "POST",
+                Data = JsonConvert.SerializeObject(response)
+            };
 
             await _task.RunTask(wws, request, CancellationToken.None);
 

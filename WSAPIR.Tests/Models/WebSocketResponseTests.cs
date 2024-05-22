@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using Newtonsoft.Json;
 using WSAPIR.Models;
+using Xunit;
 
 namespace WSAPIR.Tests
 {
@@ -16,7 +17,7 @@ namespace WSAPIR.Tests
 
             Assert.Equal(string.Empty, webSocketResponse.SourceAPI);
             Assert.Equal("sample_task", webSocketResponse.TaskName);
-            Assert.Null(webSocketResponse.Data);
+            Assert.Equal(string.Empty, webSocketResponse.Data);
         }
 
         [Fact]
@@ -52,7 +53,7 @@ namespace WSAPIR.Tests
                 TaskName = "sample_task"
             };
 
-            var sampleData = new { Property1 = "value1", Property2 = 2 };
+            var sampleData = JsonConvert.SerializeObject(new { Property1 = "value1", Property2 = 2 });
             webSocketResponse.Data = sampleData;
 
             Assert.Equal(sampleData, webSocketResponse.Data);
@@ -65,7 +66,7 @@ namespace WSAPIR.Tests
             {
                 SourceAPI = "sample_api",
                 TaskName = "sample_task",
-                Data = new { Property1 = "value1", Property2 = 2 }
+                Data = JsonConvert.SerializeObject(new { Property1 = "value1", Property2 = 2 })
             };
 
             var buffer = webSocketResponse.ToBuffer();
@@ -83,7 +84,7 @@ namespace WSAPIR.Tests
         [Fact]
         public void WebSocketResponse_Should_Set_And_Get_Properties_Correctly()
         {
-            var sampleData = new { Property1 = "value1", Property2 = 2 };
+            var sampleData = JsonConvert.SerializeObject(new { Property1 = "value1", Property2 = 2 });
 
             var webSocketResponse = new WebSocketResponse
             {

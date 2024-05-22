@@ -27,7 +27,13 @@ namespace WSAPIR.Tests.Tasks
         public async Task RunTask_Should_Send_Response_To_All_Connections_Excluding_Caller()
         {
             var wws = new WrappedWebSocket { WebSocket = new Mock<WebSocket>().Object, UserId = 123 };
-            var request = new WebSocketRequest { Data = JsonConvert.SerializeObject(new WebSocketResponse { TaskName = "TestTask", Data = "Response data" }) };
+            var request = new WebSocketRequest
+            {
+                ApiName = "TestApi",
+                Endpoint = "/test",
+                Method = "POST",
+                Data = JsonConvert.SerializeObject(new WebSocketResponse { TaskName = "TestTask", Data = "Response data" })
+            };
 
             var connections = new List<WrappedWebSocket>
             {
@@ -58,7 +64,13 @@ namespace WSAPIR.Tests.Tasks
         public async Task RunTask_Should_LogError_On_Exception()
         {
             var wws = new WrappedWebSocket { WebSocket = new Mock<WebSocket>().Object, UserId = 123 };
-            var request = new WebSocketRequest { Data = "{Invalid JSON Data}" };
+            var request = new WebSocketRequest
+            {
+                ApiName = "TestApi",
+                Endpoint = "/test",
+                Method = "POST",
+                Data = "{Invalid JSON Data}"
+            };
 
             _mockConnectionManager.Setup(m => m.GetGroupId(wws)).Returns(1);
 
