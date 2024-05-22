@@ -9,24 +9,15 @@ jobs:
   check-and-merge:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/dev'
-    permissions:
-      contents: write 
 
     steps:
-    - uses: actions/create-github-app-token@v1
+    - name: Generate Github Actions App token
       id: app-token
+      uses: actions/create-github-app-token@v1
       with:
         app-id: ${{ vars.APP_ID }}
         private-key: ${{ secrets.APP_PRIVATE_KEY }}
-    - uses: actions/checkout@master
-
-    - name: Install GitHub CLI
-      run: sudo apt-get install gh
-
-    - name: Checkout Repository
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0 
+        repositories: release
 
     - name: Merge development -> release
       uses: devmasx/merge-branch@master
