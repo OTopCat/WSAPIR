@@ -123,7 +123,7 @@ jobs:
       run: dotnet test ./WSAPIR.Tests/bin/Release/net7.0/WSAPIR.Tests.dll --no-build --verbosity normal --logger "trx;LogFileName=test_results.trx"
 
     - name: Parse Trx files
-      uses: NasAmin/trx-parser@v0.1
+      uses: NasAmin/trx-parser@v0.6.0
       id: trx-parser
       with:
         TRX_PATH: ${{ github.workspace }}/TestResults/test_results.trx #This should be the path to your TRX files
