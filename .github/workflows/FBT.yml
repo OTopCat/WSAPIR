@@ -122,11 +122,12 @@ jobs:
     - name: Run Tests
       run: dotnet test ./WSAPIR.Tests/bin/Release/net7.0/WSAPIR.Tests.dll --no-build --verbosity normal --logger "trx;LogFileName=test_results.trx"
 
-    - name: Install trx2html
-      run: npm install -g trx2html
-
-    - name: Convert TRX to HTML
-      run: trx2html -i **/TestResults/test_results.trx -o test_results.html
+    - name: Parse Trx files
+      uses: NasAmin/trx-parser@v0.1
+      id: trx-parser
+      with:
+        TRX_PATH: ${{ github.workspace }}/TestResults/test_results.trx #This should be the path to your TRX files
+        REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
 
     - name: Upload Test Results
       if: always()
@@ -134,10 +135,3 @@ jobs:
       with:
         name: test-results
         path: '**/TestResults/test_results.trx'
-
-    - name: Upload HTML Test Results
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-results-html
-        path: test_results.html
