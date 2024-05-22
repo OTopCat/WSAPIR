@@ -37,6 +37,6 @@ jobs:
         git checkout release
         git merge origin/dev --no-ff -m "Nightly merge from dev to release"
         git push origin release
-      with:
-        token: ${{ steps.app-token.outputs.token }}
+      env:
+        GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
