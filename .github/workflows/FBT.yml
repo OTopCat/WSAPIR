@@ -120,8 +120,7 @@ jobs:
         name: build
 
     - name: Run Tests
-      run: dotnet test --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=test_results.trx"
-      working-directory: ./WSAPIR.Tests/bin/Release/net7.0
+      run: dotnet test ./WSAPIR.Tests/bin/Release/net7.0/WSAPIR.Tests.dll --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=test_results.trx"
 
     - name: Upload Test Results
       if: always()
