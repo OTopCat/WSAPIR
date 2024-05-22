@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using System.Linq;
-using System.Threading.Tasks;
 using WSAPIR.Interfaces;
 using WSAPIR.Models;
 
@@ -46,7 +43,7 @@ namespace WSAPIR.Controllers
                 return BadRequest("Invalid request body.");
             }
 
-            if (!_apiUrlsSettings.Urls.Values.Contains(request.Sender))
+            if (!_apiUrlsSettings.Urls.ContainsValue(request.Sender))
             {
                 _logger.LogWarning("Sender {Sender} is not authorized.", request.Sender.Replace(Environment.NewLine, ""));
                 return Unauthorized("Sender not authorized.");
@@ -62,7 +59,7 @@ namespace WSAPIR.Controllers
             }
 
             var connections = _connectionManager.GetConnections(request.GroupId);
-            var wrappedRequest = new WebSocketRequest
+            var wrappedRequest = new WebSocketResponse
             {
                 TaskName = request.TaskName,
                 Data = JsonConvert.SerializeObject(new { Data = request.Data, Sender = request.Sender })

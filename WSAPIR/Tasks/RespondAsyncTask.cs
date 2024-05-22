@@ -1,6 +1,5 @@
 ﻿using WSAPIR.Interfaces;
 using WSAPIR.Models;
-using Newtonsoft.Json;
 using System.Net.WebSockets;
 using System.Text;
 
@@ -29,6 +28,12 @@ namespace WSAPIR.Tasks
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task RunTask(WrappedWebSocket wws, WebSocketRequest request, CancellationToken cancellationToken)
         {
+            if (string.IsNullOrEmpty(request.Data))
+            {
+                _logger.LogError("Response data is null or empty for connection {ConnectionId}.", wws.UserId);
+                return;
+            }
+
             var responseMessage = Encoding.UTF8.GetBytes(request.Data);
             var buffer = new ArraySegment<byte>(responseMessage);
 
@@ -44,6 +49,7 @@ namespace WSAPIR.Tasks
             }
         }
 
+
         /// <summary>
         /// Placeholder for Interface to dynamically add tasks.
         /// </summary>
@@ -51,6 +57,30 @@ namespace WSAPIR.Tasks
         {
             // Placeholder for Interface to dynamically add tasks
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Sends a response to the specified WebSocket connection.
+        /// </summary>
+        /// <param name="wws">The wrapped WebSocket connection.</param>
+        /// <param name="response">The WebSocket response containing the response data.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        public async Task RunTask(WrappedWebSocket wws, WebSocketResponse response, CancellationToken cancellationToken)
+        {
+            var responseMessage = Encoding.UTF8.GetBytes(response.Data);
+            var buffer = new ArraySegment<byte>(responseMessage);
+
+            try
+            {
+                await wws.WebSocket.SendAsync(buffer, WebSocketMessageType.Text, true, cancellationToken);
+                _logger.LogInformation("Response sent to connection {ConnectionId}.", wws.UserId);
+            }
+            catch (WebSocketException ex)
+            {
+                _logger.LogError(ex, "Error sending response to connection {ConnectionId}.", wws.UserId);
+                throw;
+            }
         }
     }
 }

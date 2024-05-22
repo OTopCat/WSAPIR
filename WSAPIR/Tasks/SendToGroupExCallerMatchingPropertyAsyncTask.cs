@@ -31,8 +31,14 @@ namespace WSAPIR.Tasks
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task RunTask(WrappedWebSocket wws, WebSocketRequest request, CancellationToken cancellationToken)
         {
+            if (string.IsNullOrEmpty(request.Data))
+            {
+                _logger.LogError("SendToGroupExCallerMatchingPropertyAsyncTask: Request data is null or empty.");
+                return;
+            }
+
             int groupId = _connectionManager.GetGroupId(wws);
-            var propertyData = JsonConvert.DeserializeObject<(string PropertyName, WebSocketResponse Response)>(request.Data);
+            var (PropertyName, Response) = JsonConvert.DeserializeObject<(string PropertyName, WebSocketResponse Response)>(request.Data);
 
             var connections = _connectionManager.GetConnections(groupId);
             var callerConnection = connections.FirstOrDefault(connection => connection.WebSocket == wws.WebSocket);
@@ -41,7 +47,7 @@ namespace WSAPIR.Tasks
                 return;
             }
 
-            var callerPropertyValue = _connectionManager.GetPropertyValue(callerConnection, propertyData.PropertyName);
+            var callerPropertyValue = _connectionManager.GetPropertyValue(callerConnection, PropertyName);
             if (callerPropertyValue == null)
             {
                 return;
@@ -50,9 +56,9 @@ namespace WSAPIR.Tasks
             var sendMessageTask = _webSocketTaskFactory.GetTask(nameof(SendMessageAsyncTask));
             var tasks = connections
                 .Where(connection => connection.WebSocket != wws.WebSocket)
-                .Select(connection => new { connection, connectionPropertyValue = _connectionManager.GetPropertyValue(connection, propertyData.PropertyName) })
+                .Select(connection => new { connection, connectionPropertyValue = _connectionManager.GetPropertyValue(connection, PropertyName) })
                 .Where(x => x.connectionPropertyValue != null && callerPropertyValue.Equals(x.connectionPropertyValue))
-                .Select(x => sendMessageTask.RunTask(x.connection, JsonConvert.SerializeObject(propertyData.Response), cancellationToken)).ToList();
+                .Select(x => sendMessageTask.RunTask(x.connection, JsonConvert.SerializeObject(Response), cancellationToken)).ToList();
 
             await Task.WhenAll(tasks);
         }
@@ -64,6 +70,43 @@ namespace WSAPIR.Tasks
         {
             // Placeholder for Interface to dynamically add tasks
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Placeholder for Interface to dynamically add tasks.
+        /// </summary>
+        public async Task RunTask(WrappedWebSocket wws, WebSocketResponse response, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrEmpty(response.Data))
+            {
+                _logger.LogError("SendToGroupExCallerMatchingPropertyAsyncTask: Response data is null or empty.");
+                return;
+            }
+
+            int groupId = _connectionManager.GetGroupId(wws);
+            var (PropertyName, Response) = JsonConvert.DeserializeObject<(string PropertyName, WebSocketResponse Response)>(response.Data);
+
+            var connections = _connectionManager.GetConnections(groupId);
+            var callerConnection = connections.FirstOrDefault(connection => connection.WebSocket == wws.WebSocket);
+            if (callerConnection == null)
+            {
+                return;
+            }
+
+            var callerPropertyValue = _connectionManager.GetPropertyValue(callerConnection, PropertyName);
+            if (callerPropertyValue == null)
+            {
+                return;
+            }
+
+            var sendMessageTask = _webSocketTaskFactory.GetTask(nameof(SendMessageAsyncTask));
+            var tasks = connections
+                .Where(connection => connection.WebSocket != wws.WebSocket)
+                .Select(connection => new { connection, connectionPropertyValue = _connectionManager.GetPropertyValue(connection, PropertyName) })
+                .Where(x => x.connectionPropertyValue != null && callerPropertyValue.Equals(x.connectionPropertyValue))
+                .Select(x => sendMessageTask.RunTask(x.connection, response, cancellationToken)).ToList();
+
+            await Task.WhenAll(tasks);
         }
     }
 }

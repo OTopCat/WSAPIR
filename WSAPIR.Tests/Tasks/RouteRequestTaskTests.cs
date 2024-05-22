@@ -8,20 +8,21 @@ using WSAPIR.Interfaces;
 using WSAPIR.Models;
 using WSAPIR.Main;
 using WSAPIR.Tasks;
+using Xunit;
 
 namespace WSAPIR.Tests.Tasks
 {
-    public class RouteRequestTests
+    public class RouteRequestTaskTests
     {
-        private readonly Mock<ILogger<RouteRequest>> _mockLogger;
+        private readonly Mock<ILogger<RouteRequestTask>> _mockLogger;
         private readonly Mock<IHttpClientFactory> _mockHttpClientFactory;
         private readonly Mock<IConnectionManager> _mockConnectionManager;
         private readonly Mock<IWebSocketTaskFactory> _mockTaskFactory;
-        private readonly RouteRequest _task;
+        private readonly RouteRequestTask _task;
 
-        public RouteRequestTests()
+        public RouteRequestTaskTests()
         {
-            _mockLogger = new Mock<ILogger<RouteRequest>>();
+            _mockLogger = new Mock<ILogger<RouteRequestTask>>();
             _mockHttpClientFactory = new Mock<IHttpClientFactory>();
             _mockConnectionManager = new Mock<IConnectionManager>();
             _mockTaskFactory = new Mock<IWebSocketTaskFactory>();
@@ -29,7 +30,7 @@ namespace WSAPIR.Tests.Tasks
             {
                 Urls = new Dictionary<string, string> { { "TestApi", "http://testapi.com/" } }
             });
-            _task = new RouteRequest(_mockHttpClientFactory.Object, _mockConnectionManager.Object, _mockTaskFactory.Object, _mockLogger.Object, apiUrlsSettings);
+            _task = new RouteRequestTask(_mockHttpClientFactory.Object, _mockConnectionManager.Object, _mockTaskFactory.Object, _mockLogger.Object, apiUrlsSettings);
         }
 
         [Fact]
@@ -41,14 +42,19 @@ namespace WSAPIR.Tests.Tasks
                 UserId = 123
             };
 
+            var apiRequest = new ApiRequest
+            {
+                ApiName = "TestApi",
+                Endpoint = "/test",
+                Method = "GET"
+            };
+
             var request = new WebSocketRequest
             {
-                Data = JsonConvert.SerializeObject(new ApiRequest
-                {
-                    ApiName = "TestApi",
-                    Endpoint = "/test",
-                    Method = "GET"
-                })
+                ApiName = apiRequest.ApiName,
+                Endpoint = apiRequest.Endpoint,
+                Method = apiRequest.Method,
+                Data = JsonConvert.SerializeObject(apiRequest)
             };
 
             var httpClientMock = new Mock<HttpClient>();

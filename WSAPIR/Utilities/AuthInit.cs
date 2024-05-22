@@ -1,4 +1,4 @@
-﻿using WSAPIR.Main;
+﻿using WSAPIR.Interfaces;
 
 namespace WSAPIR.Utilities
 {
@@ -28,7 +28,7 @@ namespace WSAPIR.Utilities
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             using var scope = _serviceProvider.CreateScope();
-            var authSingleton = scope.ServiceProvider.GetRequiredService<WebSocketAuth>();
+            var authSingleton = scope.ServiceProvider.GetRequiredService<IWebSocketAuth>();
 
             try
             {

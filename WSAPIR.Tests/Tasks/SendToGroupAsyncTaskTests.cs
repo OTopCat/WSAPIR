@@ -34,7 +34,13 @@ namespace WSAPIR.Tests.Tasks
         {
             var groupId = 1;
             var response = new WebSocketResponse { TaskName = "TestTask", Data = "TestData" };
-            var request = new WebSocketRequest { Data = JsonConvert.SerializeObject(response) };
+            var request = new WebSocketRequest
+            {
+                ApiName = "TestApi",
+                Endpoint = "/test",
+                Method = "POST",
+                Data = JsonConvert.SerializeObject(response)
+            };
             var wrappedWebSocket = new WrappedWebSocket { UserId = 123, WebSocket = new Mock<System.Net.WebSockets.WebSocket>().Object };
 
             var connections = new List<WrappedWebSocket>
@@ -64,7 +70,13 @@ namespace WSAPIR.Tests.Tasks
         public async Task RunTask_Should_LogError_On_Exception()
         {
             var groupId = 1;
-            var request = new WebSocketRequest { Data = "{invalidJson}" };
+            var request = new WebSocketRequest
+            {
+                ApiName = "TestApi",
+                Endpoint = "/test",
+                Method = "POST",
+                Data = "{invalidJson}"
+            };
             var wrappedWebSocket = new WrappedWebSocket { UserId = 123, WebSocket = new Mock<System.Net.WebSockets.WebSocket>().Object };
 
             _mockConnectionManager.Setup(m => m.GetGroupId(It.IsAny<WrappedWebSocket>())).Returns(groupId);

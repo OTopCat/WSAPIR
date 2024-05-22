@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Extensions.DependencyInjection;
-using WSAPIR.Interfaces;
+﻿using WSAPIR.Interfaces;
 
 namespace WSAPIR.Main
 {
