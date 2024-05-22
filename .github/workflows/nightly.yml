@@ -36,3 +36,4 @@ jobs:
         target_branch: release
         github_token: ${{ steps.app-token.outputs.token }}
 
+
