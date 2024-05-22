@@ -78,7 +78,7 @@ namespace WSAPIR.Tests.Tasks
                     It.IsAny<EventId>(),
                     It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Error sending response to group")),
                     It.IsAny<JsonReaderException>(),
-                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()), 
+                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
                 Times.Once
             );
         }

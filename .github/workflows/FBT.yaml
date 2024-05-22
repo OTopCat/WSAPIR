@@ -1,12 +1,8 @@
 name: Format, Build, Test
 
-on:
-  push:
-    branches:
-      - dev
-  pull_request:
-    branches:
-      - dev
+on: [push, pull_request]
+  branches:
+    - dev
 
 env:
   DOTNET_VERSION: '8.0.x' #7 EOL so no matrix, just an 8+
@@ -37,19 +33,19 @@ jobs:
       run: dotnet restore
 
     - name: Save NuGet Cache
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: nuget-cache
         path: ~/.nuget/packages
 
     - name: Save Restored Dependencies
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: restored-dependencies
         path: ./**/obj
 
     - name: Save Code
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: code
         path: ./
@@ -60,18 +56,18 @@ jobs:
     
     steps:
     - name: Download Code
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: code
 
     - name: Restore NuGet Cache
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: nuget-cache
         path: ~/.nuget/packages
 
     - name: Restore Restored Dependencies
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: restored-dependencies
         path: ./
@@ -85,18 +81,18 @@ jobs:
 
     steps:
     - name: Download Code
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: code
 
     - name: Restore NuGet Cache
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: nuget-cache
         path: ~/.nuget/packages
 
     - name: Restore Restored Dependencies
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: restored-dependencies
         path: ./
@@ -105,7 +101,7 @@ jobs:
       run: dotnet build --configuration Release --no-restore
 
     - name: Save Build Artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: build
         path: ./**/bin
@@ -116,16 +112,17 @@ jobs:
 
     steps:
     - name: Download Build Artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: build
 
     - name: Run Tests
       run: dotnet test --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=test_results.trx"
+      working-directory: ./
 
     - name: Upload Test Results
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: test-results
         path: '**/TestResults/test_results.trx'
