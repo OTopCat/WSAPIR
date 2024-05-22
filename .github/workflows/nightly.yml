@@ -13,6 +13,12 @@ jobs:
       contents: write 
 
     steps:
+    - uses: actions/create-github-app-token@v1
+      id: app-token
+      with:
+        app-id: 903565
+        private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
     - name: Install GitHub CLI
       run: sudo apt-get install gh
 
@@ -23,12 +29,6 @@ jobs:
 
     - name: Fetch Dev Branch
       run: git fetch origin dev
-
-    - uses: actions/create-github-app-token@v1
-      id: app-token
-      with:
-        app-id: 903565
-        private-key: ${{ secrets.APP_PRIVATE_KEY }}
 
     - name: Merge Dev into Release
       with:
