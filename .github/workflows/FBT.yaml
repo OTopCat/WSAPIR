@@ -1,0 +1,131 @@
+name: Format, Build, Test
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - dev
+
+env:
+  DOTNET_VERSION: '8.0.x' #7 EOL so no matrix, just an 8+
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Cache .NET Packages
+      id: cache-nuget
+      uses: actions/cache@v3
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+
+    - name: Restore Dependencies
+      run: dotnet restore
+
+    - name: Save NuGet Cache
+      uses: actions/upload-artifact@v3
+      with:
+        name: nuget-cache
+        path: ~/.nuget/packages
+
+    - name: Save Restored Dependencies
+      uses: actions/upload-artifact@v3
+      with:
+        name: restored-dependencies
+        path: ./**/obj
+
+    - name: Save Code
+      uses: actions/upload-artifact@v3
+      with:
+        name: code
+        path: ./
+
+  format:
+    runs-on: ubuntu-latest
+    needs: setup
+    
+    steps:
+    - name: Download Code
+      uses: actions/download-artifact@v3
+      with:
+        name: code
+
+    - name: Restore NuGet Cache
+      uses: actions/download-artifact@v3
+      with:
+        name: nuget-cache
+        path: ~/.nuget/packages
+
+    - name: Restore Restored Dependencies
+      uses: actions/download-artifact@v3
+      with:
+        name: restored-dependencies
+        path: ./
+
+    - name: Verify Formatting
+      run: dotnet format --verify-no-changes --verbosity detailed
+
+  build:
+    runs-on: ubuntu-latest
+    needs: setup
+
+    steps:
+    - name: Download Code
+      uses: actions/download-artifact@v3
+      with:
+        name: code
+
+    - name: Restore NuGet Cache
+      uses: actions/download-artifact@v3
+      with:
+        name: nuget-cache
+        path: ~/.nuget/packages
+
+    - name: Restore Restored Dependencies
+      uses: actions/download-artifact@v3
+      with:
+        name: restored-dependencies
+        path: ./
+
+    - name: Build Solution
+      run: dotnet build --configuration Release --no-restore
+
+    - name: Save Build Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: build
+        path: ./**/bin
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+    - name: Download Build Artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: build
+
+    - name: Run Tests
+      run: dotnet test --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=test_results.trx"
+
+    - name: Upload Test Results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results
+        path: '**/TestResults/test_results.trx'

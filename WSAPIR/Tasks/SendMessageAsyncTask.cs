@@ -3,7 +3,7 @@ using WSAPIR.Models;
 using Newtonsoft.Json;
 using System.Net.WebSockets;
 
-namespace WSAPIR.Main
+namespace WSAPIR.Tasks
 {
     /// <summary>
     /// Task to send a WebSocket message to a specific connection.
