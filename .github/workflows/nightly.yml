@@ -31,12 +31,12 @@ jobs:
       run: git fetch origin dev
 
     - name: Merge Dev into Release
-          run: |
-            git config --global user.name "github-actions[bot]"
-            git config --global user.email "github-actions[bot]@users.noreply.github.com"
-            git checkout release
-            git merge origin/dev --no-ff -m "Nightly merge from dev to release"
-            git push origin release
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            GH_TOKEN: ${{ steps.app-token.outputs.token }}
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git checkout release
+        git merge origin/dev --no-ff -m "Nightly merge from dev to release"
+        git push origin release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
