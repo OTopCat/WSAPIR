@@ -16,16 +16,16 @@ jobs:
 
     steps:
     - name: Setup .NET SDK
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
     - name: Checkout Code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Cache .NET Packages
       id: cache-nuget
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.nuget/packages
         key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
@@ -119,12 +119,9 @@ jobs:
       with:
         name: build
 
-    - name: List Directory Structure
-      run: ls -R
-
     - name: Run Tests
       run: dotnet test --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=test_results.trx"
-      #working-directory: ./
+      working-directory: ./WSAPIR.Tests/bin/Release/net7.0
 
     - name: Upload Test Results
       if: always()
