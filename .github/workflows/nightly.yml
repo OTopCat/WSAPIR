@@ -31,7 +31,7 @@ jobs:
         echo "Last PR: $LAST_PR"
         PR_STATUS=$(gh pr view $LAST_PR --json mergeStateStatus --jq '.mergeStateStatus')
         echo "PR Status: $PR_STATUS"
-        echo "::set-output name=pr_status::$PR_STATUS"
+        echo "pr_status=$PR_STATUS" >> $GITHUB_OUTPUT
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
