@@ -1,0 +1,47 @@
+name: Nightly Release
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  check-and-merge:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/dev'
+    permissions:
+      contents: write 
+
+    steps:
+    - name: Install GitHub CLI
+      run: sudo apt-get install gh
+
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 
+
+    - name: Fetch Dev Branch
+      run: git fetch origin dev
+
+    - name: Check Last PR Merge Commit Status
+      id: check_pr_status
+      run: |
+        LAST_PR=$(gh pr list --base dev --state closed --json number --jq '.[0].number')
+        echo "Last PR: $LAST_PR"
+        PR_STATUS=$(gh pr view $LAST_PR --json mergeStateStatus --jq '.mergeStateStatus')
+        echo "PR Status: $PR_STATUS"
+        echo "::set-output name=pr_status::$PR_STATUS"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Merge Dev into Release
+      if: steps.check_pr_status.outputs.pr_status == 'CLEAN'
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git checkout release
+        git merge origin/dev --no-ff -m "Nightly merge from dev to release"
+        git push origin release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
