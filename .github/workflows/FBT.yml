@@ -16,16 +16,16 @@ jobs:
 
     steps:
     - name: Setup .NET SDK
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v3
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
     - name: Checkout Code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v3
 
     - name: Cache .NET Packages
       id: cache-nuget
-      uses: actions/cache@v4
+      uses: actions/cache@v3
       with:
         path: ~/.nuget/packages
         key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
@@ -120,7 +120,7 @@ jobs:
         name: build
 
     - name: List Directory Structure
-    run: ls -R
+      run: ls -R
 
     - name: Run Tests
       run: dotnet test --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=test_results.trx"
