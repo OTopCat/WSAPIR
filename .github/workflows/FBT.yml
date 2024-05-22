@@ -120,7 +120,13 @@ jobs:
         name: build
 
     - name: Run Tests
-      run: dotnet test ./WSAPIR.Tests/bin/Release/net7.0/WSAPIR.Tests.dll --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=test_results.trx"
+      run: dotnet test ./WSAPIR.Tests/bin/Release/net7.0/WSAPIR.Tests.dll --no-build --verbosity normal --logger "trx;LogFileName=test_results.trx"
+
+    - name: Install trx2html
+      run: npm install -g trx2html
+
+    - name: Convert TRX to HTML
+      run: trx2html -i **/TestResults/test_results.trx -o test_results.html
 
     - name: Upload Test Results
       if: always()
@@ -128,3 +134,10 @@ jobs:
       with:
         name: test-results
         path: '**/TestResults/test_results.trx'
+
+    - name: Upload HTML Test Results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results-html
+        path: test_results.html
