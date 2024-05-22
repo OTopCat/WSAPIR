@@ -2,7 +2,7 @@
 using WSAPIR.Models;
 using Newtonsoft.Json;
 
-namespace WSAPIR.Main
+namespace WSAPIR.Tasks
 {
     /// <summary>
     /// Task to send a response to all connections in the caller's group where the specified property value matches the caller's.

@@ -2,8 +2,9 @@
 using WSAPIR.Models;
 using Newtonsoft.Json;
 using System.Net.WebSockets;
+using System.Text;
 
-namespace WSAPIR.Main
+namespace WSAPIR.Tasks
 {
     /// <summary>
     /// Task to send a response to a specific WebSocket connection.
@@ -28,15 +29,18 @@ namespace WSAPIR.Main
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task RunTask(WrappedWebSocket wws, WebSocketRequest request, CancellationToken cancellationToken)
         {
+            var responseMessage = Encoding.UTF8.GetBytes(request.Data);
+            var buffer = new ArraySegment<byte>(responseMessage);
+
             try
             {
-                var response = JsonConvert.DeserializeObject<WebSocketResponse>(request.Data);
-                await wws.WebSocket.SendAsync(response.ToBuffer(), WebSocketMessageType.Text, true, cancellationToken);
-                _logger.LogInformation("RespondAsyncTask: Response sent to user {UserId}.", wws.UserId);
+                await wws.WebSocket.SendAsync(buffer, WebSocketMessageType.Text, true, cancellationToken);
+                _logger.LogInformation("Response sent to connection {ConnectionId}.", wws.UserId);
             }
             catch (WebSocketException ex)
             {
-                _logger.LogError(ex, "RespondAsyncTask: Error sending response to user {UserId}.", wws.UserId);
+                _logger.LogError(ex, "Error sending response to connection {ConnectionId}.", wws.UserId);
+                throw;
             }
         }
 

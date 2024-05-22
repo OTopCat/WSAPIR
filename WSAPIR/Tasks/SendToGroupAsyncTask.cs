@@ -2,7 +2,7 @@
 using WSAPIR.Models;
 using Newtonsoft.Json;
 
-namespace WSAPIR.Main
+namespace WSAPIR.Tasks
 {
     /// <summary>
     /// Task to send a response to all connections in a specified group.
@@ -31,24 +31,37 @@ namespace WSAPIR.Main
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task RunTask(WrappedWebSocket wws, WebSocketRequest request, CancellationToken cancellationToken)
         {
-            var groupId = JsonConvert.DeserializeObject<int>(request.Data);
-            var response = JsonConvert.DeserializeObject<WebSocketResponse>(request.Data);
+            try
+            {
+                int groupId = _connectionManager.GetGroupId(wws);
+                var response = JsonConvert.DeserializeObject<WebSocketResponse>(request.Data);
 
-            var connections = _connectionManager.GetConnections(groupId);
-            var sendMessageTask = _webSocketTaskFactory.GetTask(nameof(SendMessageAsyncTask));
+                var connections = _connectionManager.GetConnections(groupId);
+                var sendMessageTask = _webSocketTaskFactory.GetTask(nameof(SendMessageAsyncTask));
 
-            var tasks = connections.Select(connection => sendMessageTask.RunTask(connection, JsonConvert.SerializeObject(response), cancellationToken)).ToList();
-            await Task.WhenAll(tasks);
+                var tasks = connections.Select(connection => sendMessageTask.RunTask(connection, JsonConvert.SerializeObject(response), cancellationToken)).ToList();
+                await Task.WhenAll(tasks);
 
-            _logger.LogInformation("SendToGroupAsyncTask: Response sent to connections in group {GroupId}.", groupId);
+                _logger.LogInformation("SendToGroupAsyncTask: Response sent to connections in group {GroupId}.", groupId);
+            }
+            catch (JsonReaderException ex)
+            {
+                _logger.LogError(ex, "Error sending response to group");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unexpected error occurred");
+                throw;
+            }
         }
+
 
         /// <summary>
         /// Placeholder for Interface to dynamically add tasks.
         /// </summary>
         public Task RunTask(WrappedWebSocket wws, string? data, CancellationToken cancellationToken)
         {
-            // Placeholder for Interface to dynamically add tasks
             throw new NotImplementedException();
         }
     }

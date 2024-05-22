@@ -30,4 +30,5 @@
         /// </summary>
         public string? CallbackTask { get; set; }
     }
+
 }

@@ -6,7 +6,7 @@ using WSAPIR.Models;
 using Microsoft.Extensions.Options;
 using System.Net.WebSockets;
 
-namespace WSAPIR.Main
+namespace WSAPIR.Tasks
 {
     /// <summary>
     /// Task to route an API request from WebSocket data.
@@ -71,6 +71,8 @@ namespace WSAPIR.Main
                 var response = await client.SendAsync(requestMessage, cancellationToken);
                 var responseData = await response.Content.ReadAsStringAsync(cancellationToken);
 
+                _logger.LogInformation("Request routed to {ApiName} with endpoint {Endpoint}", apiRequest.ApiName, apiRequest.Endpoint);
+
                 if (!string.IsNullOrEmpty(apiRequest.CallbackTask))
                 {
                     var callbackTask = _webSocketTaskFactory.GetTask(apiRequest.CallbackTask);
@@ -100,6 +102,7 @@ namespace WSAPIR.Main
                 await HandleErrorAsync(wws, "Error routing API request.", cancellationToken);
             }
         }
+
 
         /// <summary>
         /// Placeholder as need this construcrtor do dynamicaly add tasks

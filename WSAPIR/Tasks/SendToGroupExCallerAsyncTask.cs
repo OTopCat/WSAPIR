@@ -1,8 +1,9 @@
 ﻿using WSAPIR.Interfaces;
 using WSAPIR.Models;
 using Newtonsoft.Json;
+using System.Text.RegularExpressions;
 
-namespace WSAPIR.Main
+namespace WSAPIR.Tasks
 {
     /// <summary>
     /// Task to send a response to all connections in the caller's group, excluding the caller.
@@ -32,17 +33,26 @@ namespace WSAPIR.Main
         public async Task RunTask(WrappedWebSocket wws, WebSocketRequest request, CancellationToken cancellationToken)
         {
             int groupId = _connectionManager.GetGroupId(wws);
-            var response = JsonConvert.DeserializeObject<WebSocketResponse>(request.Data);
+            try
+            {
+                var response = JsonConvert.DeserializeObject<WebSocketResponse>(request.Data);
 
-            var connections = _connectionManager.GetConnections(groupId)
-                .Where(connection => connection.WebSocket != wws.WebSocket);
-            var sendMessageTask = _webSocketTaskFactory.GetTask(nameof(SendMessageAsyncTask));
+                var connections = _connectionManager.GetConnections(groupId)
+                    .Where(connection => connection.WebSocket != wws.WebSocket);
+                var sendMessageTask = _webSocketTaskFactory.GetTask(nameof(SendMessageAsyncTask));
 
-            var tasks = connections.Select(connection => sendMessageTask.RunTask(connection, JsonConvert.SerializeObject(response), cancellationToken)).ToList();
-            await Task.WhenAll(tasks);
+                var tasks = connections.Select(connection => sendMessageTask.RunTask(connection, JsonConvert.SerializeObject(response), cancellationToken)).ToList();
+                await Task.WhenAll(tasks);
 
-            _logger.LogInformation("SendToGroupExCallerAsyncTask: Response sent to connections in group {GroupId} except caller.", groupId);
+                _logger.LogInformation("SendToGroupExCallerAsyncTask: Response sent to connections in group {GroupId} except caller.", groupId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sending response to group {GroupId} except caller.", groupId);
+                throw;
+            }
         }
+
 
         /// <summary>
         /// Placeholder for Interface to dynamically add tasks.
