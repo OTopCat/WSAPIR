@@ -4,4 +4,3 @@
 # WSAPIR
 
 This project is ASP.NET Core API designed to act as an infrastracture layer in multi-tenant, multi-api enviroment to introduce additional layer of security with Websockets.
-more to follow...
