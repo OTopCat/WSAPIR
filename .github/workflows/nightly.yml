@@ -16,7 +16,7 @@ jobs:
     - uses: actions/create-github-app-token@v1
       id: app-token
       with:
-        app-id: ${{ env.APP_ID }}
+        app-id: ${{ vars.APP_ID }}
         private-key: ${{ secrets.APP_PRIVATE_KEY }}
 
     - name: Install GitHub CLI
@@ -37,7 +37,6 @@ jobs:
         git checkout release
         git merge origin/dev --no-ff -m "Nightly merge from dev to release"
         git push origin release
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+      with:
+        token: ${{ steps.app-token.outputs.token }}
 
