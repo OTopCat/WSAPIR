@@ -19,6 +19,7 @@ jobs:
         private-key: ${{ secrets.APP_PRIVATE_KEY }}
         repositories: WSAPIR
 
+
     - name: Merge development -> release
       uses: devmasx/merge-branch@master
       with:
