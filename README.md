@@ -1,4 +1,4 @@
-[![Format, Build, Test](https://github.com/OTopCat/WSAPIR/actions/workflows/FTB.yaml/badge.svg?branch=dev)](https://github.com/OTopCat/WSAPIR/actions/workflows/FTB.yaml) </br>
+[![Format, Build, Test](https://github.com/OTopCat/WSAPIR/actions/workflows/FBT.yml/badge.svg?branch=dev)](https://github.com/OTopCat/WSAPIR/actions/workflows/FBT.yml)
 [![CodeQL](https://github.com/OTopCat/WSAPIR/actions/workflows/github-code-scanning/codeql/badge.svg?branch=dev)](https://github.com/OTopCat/WSAPIR/actions/workflows/github-code-scanning/codeql) 
 
 # WSAPIR
