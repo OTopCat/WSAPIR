@@ -122,6 +122,9 @@ jobs:
     - name: Run Tests
       run: dotnet test ./WSAPIR.Tests/bin/Release/net7.0/WSAPIR.Tests.dll --no-build --verbosity normal --logger "trx;LogFileName=test_results.trx"
 
+    - name: List Directory Structure
+      run: ls -R
+
     - name: Parse Trx files
       uses: NasAmin/trx-parser@v0.6.0
       id: trx-parser
