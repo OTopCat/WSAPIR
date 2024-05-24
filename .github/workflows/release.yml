@@ -19,54 +19,57 @@ jobs:
         with:
           ref: ${{ github.event.repository.default_branch }}
 
-      - name: Copy WSAPIR code folder to workspace
-        run: |
-          mkdir -p ../workspace/WSAPIR
-          cp -r WSAPIR/* ../workspace/WSAPIR/
+      # - name: Copy WSAPIR code folder to workspace
+      #   run: |
+      #     mkdir -p ../workspace/WSAPIR
+      #     cp -r WSAPIR/* ../workspace/WSAPIR/
 
-      - name: Check release branch existance
-        run: |
-          git fetch origin
-          if git show-ref --verify --quiet refs/heads/release; then
-            echo "Branch release exists."
-          else
-            echo "Branch release does not exist. Creating it."
-            git checkout -b release
-            git push origin release
+      # - name: Check release branch existance
+      #   run: |
+      #     git fetch origin
+      #     if git show-ref --verify --quiet refs/heads/release; then
+      #       echo "Branch release exists."
+      #     else
+      #       echo "Branch release does not exist. Creating it."
+      #       git checkout -b release
+      #       git push origin release
 
-      - name: Checkout release branch
-        uses: actions/checkout@v4
-        with:
-          ref: release
+      # - name: Checkout release branch
+      #   uses: actions/checkout@v4
+      #   with:
+      #     ref: release
 
-      - name: Remove WSAPIR.Tests folder from release branch
-        run: |
-          if [ -d "WSAPIR.Tests" ]; then
-            rm -rf WSAPIR.Tests
-            git config --global user.name "github-actions[bot]"
-            git config --global user.email "github-actions[bot]@users.noreply.github.com"
-            git add .
-            git commit -m "Remove WSAPIR.Tests folder"
-            git push origin release
-          else
-            echo "WSAPIR.Tests folder does not exist."
-          fi
-          
-      - name: Copy WSAPIR from workspace to release branch
-        run: |
-          mkdir -p WSAPIR
-          cp -r ../workspace/WSAPIR/* WSAPIR/
+      # - name: Remove WSAPIR.Tests folder from release branch
+      #   run: |
+      #     if [ -d "WSAPIR.Tests" ]; then
+      #       rm -rf WSAPIR.Tests
+      #       git config --global user.name "github-actions[bot]"
+      #       git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      #       git add .
+      #       git commit -m "Remove WSAPIR.Tests folder"
+      #       git push origin release
+      #     else
+      #       echo "WSAPIR.Tests folder does not exist."
+      #     fi
 
-      - name: Commit changes
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add WSAPIR
-          git commit -m "Push code for release"
-          git push origin release
+      # - name: Copy WSAPIR from workspace to release branch
+      #   run: |
+      #     mkdir -p WSAPIR
+      #     cp -r ../workspace/WSAPIR/* WSAPIR/
+
+      # - name: Commit changes
+      #   run: |
+      #     git config --global user.name "github-actions[bot]"
+      #     git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      #     git add WSAPIR
+      #     git commit -m "Push code for release"
+      #     git push origin release
 
       - name: Run Automatic release
         uses: marvinpinto/action-automatic-releases@latest
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
           prerelease: false
+          files: |
+            WSAPIR/
