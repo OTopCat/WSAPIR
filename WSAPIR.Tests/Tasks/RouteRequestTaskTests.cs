@@ -8,7 +8,6 @@ using WSAPIR.Interfaces;
 using WSAPIR.Models;
 using WSAPIR.Main;
 using WSAPIR.Tasks;
-using Xunit;
 
 namespace WSAPIR.Tests.Tasks
 {

@@ -32,8 +32,6 @@ namespace WSAPIR.Utilities
 
             services.AddHostedService<AuthInit>();
 
-
-
             // Register all implementations of IWebSocketTask as transient
             var taskTypes = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(assembly => assembly.GetTypes())
