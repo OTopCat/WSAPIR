@@ -49,7 +49,6 @@ namespace WSAPIR.Tasks
             }
         }
 
-
         /// <summary>
         /// Placeholder for Interface to dynamically add tasks.
         /// </summary>
